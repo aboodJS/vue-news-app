@@ -1,0 +1,10 @@
+@import './base.css';
+body {
+  background-color: rgb(34, 32, 32);
+  color: aliceblue;
+}
+
+#app {
+  display: grid;
+  justify-content: center;
+}
