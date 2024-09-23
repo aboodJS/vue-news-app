@@ -5,6 +5,7 @@ api url: https://newsapi.org/v2/everything?
 -->
 <script setup>
 import { computed, ref } from 'vue'
+import ArticleBox from './components/ArticleBox.vue'
 
 const query = ref('')
 const date = ref()
@@ -68,9 +69,7 @@ async function fetchData() {
   </h1>
   <section ref="sect">
     <div v-for="item in formatedList">
-      <h1>{{ item.title }}</h1>
-      <p>{{ item.description }}</p>
-      <a :href="item.url" target="_blank">read the article</a>
+      <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
     </div>
   </section>
 </template>
