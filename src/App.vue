@@ -31,16 +31,6 @@ async function fetchData() {
     sect.value.innerHTML = 'enter a valid api key'
     return 0
   }
-
-  try {
-    const rq = await fetch(
-      `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
-    )
-    const data = await rq.json()
-    articles.value = data.articles
-  } catch (error) {
-    console.log(error.message)
-  }
 }
 </script>
 
