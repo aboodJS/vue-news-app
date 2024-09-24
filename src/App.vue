@@ -1,11 +1,13 @@
 <!-- 
 api url: https://newsapi.org/v2/everything? 
 
+    `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
 
 -->
 <script setup>
 import { computed, ref } from 'vue'
 import ArticleBox from './components/ArticleBox.vue'
+import LoadingScreen from './components/LoadingScreen.vue'
 
 const query = ref('')
 const date = ref()
@@ -29,17 +31,16 @@ async function fetchData() {
     sect.value.innerHTML = 'enter a valid api key'
     return 0
   }
-  const rq = await fetch(
-    `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
-  )
-  const data = await rq.json()
-  if (data.articles[0] === undefined) {
-    sect.value.innerHTML = 'no articles found'
-  } else {
-    data.articles.length = 10
+
+  try {
+    const rq = await fetch(
+      `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
+    )
+    const data = await rq.json()
     articles.value = data.articles
+  } catch (error) {
+    console.log(error.message)
   }
-  query.value = ''
 }
 </script>
 
@@ -67,6 +68,7 @@ async function fetchData() {
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
+  <LoadingScreen v-if="fetchData().ok === 'pending'" />
   <section ref="sect">
     <div v-for="item in formatedList">
       <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
@@ -99,6 +101,8 @@ span {
 }
 
 section {
+  justify-self: center;
+  align-self: center;
   justify-content: center;
   align-content: space-evenly;
   display: grid;
