@@ -1,11 +1,14 @@
 <!-- 
 api url: https://newsapi.org/v2/everything? 
 
+    `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
 
 -->
 <script setup>
 import { computed, ref } from 'vue'
 import ArticleBox from './components/ArticleBox.vue'
+import LoadingScreen from './components/LoadingScreen.vue'
+import { errorMessages } from 'vue/compiler-sfc'
 
 const query = ref('')
 const date = ref()
@@ -21,25 +24,27 @@ const formatedQuery = computed(() => {
 })
 
 const formatedList = computed(() => {
-  return articles.value.length > 0 ? articles.value.filter((e) => e.title !== '[Removed]') : []
+  return articles.value.filter((x) => x.title !== '[Removed]')
 })
 
 async function fetchData() {
-  if (key.value === '' || key.value.length < 32) {
-    sect.value.innerHTML = 'enter a valid api key'
-    return 0
+  try {
+    const rq = await fetch(
+      `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
+    )
+
+    const data = await rq.json()
+
+    if (data.articles[0] === undefined) {
+      articles.value = 'no articles found'
+    } else {
+      data.articles.length = 10
+
+      articles.value = data.articles
+    }
+  } catch (error) {
+    articles.value = `Error: ${error}`
   }
-  const rq = await fetch(
-    `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
-  )
-  const data = await rq.json()
-  if (data.articles[0] === undefined) {
-    sect.value.innerHTML = 'no articles found'
-  } else {
-    data.articles.length = 10
-    articles.value = data.articles
-  }
-  query.value = ''
 }
 </script>
 
@@ -99,6 +104,8 @@ span {
 }
 
 section {
+  justify-self: center;
+  align-self: center;
   justify-content: center;
   align-content: space-evenly;
   display: grid;

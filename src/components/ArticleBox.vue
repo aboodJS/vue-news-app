@@ -17,6 +17,7 @@ a {
 }
 
 button {
+  align-self: center;
   border-radius: var(--br-radius);
   border: none;
   background-color: var(--line-color);
