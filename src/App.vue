@@ -27,24 +27,48 @@ const formatedList = computed(() => {
   return articles.value.filter((x) => x.title !== '[Removed]')
 })
 
-async function fetchData() {
-  try {
-    const rq = await fetch(
+// async function fetchData() {
+//   try {
+//     const rq = await fetch(
+//       `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
+//     )
+
+//     const data = await rq.json()
+
+//     if (data.articles[0] === undefined) {
+//       articles.value = 'no articles found'
+//     } else {
+//       data.articles.length = 10
+
+//       articles.value = data.articles
+//     }
+//   } catch (error) {
+//     articles.value = `Error: ${error}`
+//   }
+// }
+
+function fetchData() {
+  const promise = new Promise((resolve, reject) => {
+    let rq = new XMLHttpRequest()
+    rq.open(
+      'GET',
       `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
     )
 
-    const data = await rq.json()
-
-    if (data.articles[0] === undefined) {
-      articles.value = 'no articles found'
-    } else {
-      data.articles.length = 10
-
-      articles.value = data.articles
+    rq.onload = () => {
+      if (rq.status === 200) {
+        resolve(rq.response)
+      } else {
+        reject(`error: ${rq.response}`)
+      }
     }
-  } catch (error) {
-    articles.value = `Error: ${error}`
-  }
+    rq.send()
+  })
+    .then((data) => JSON.parse(data))
+    .then((arts) => {
+      arts.articles.length = 10
+      articles.value = arts.articles
+    })
 }
 </script>
 
