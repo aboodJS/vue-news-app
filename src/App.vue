@@ -5,9 +5,9 @@ api url: https://newsapi.org/v2/everything?
 
 -->
 <script setup>
-import { computed, ref } from 'vue'
-import ArticleBox from './components/ArticleBox.vue'
+import { computed, ref, defineAsyncComponent } from 'vue'
 import LoadingScreen from './components/LoadingScreen.vue'
+import ArticleBox from './components/ArticleBox.vue'
 import { errorMessages } from 'vue/compiler-sfc'
 
 const query = ref('')
@@ -46,6 +46,10 @@ async function fetchData() {
     articles.value = `Error: ${error}`
   }
 }
+
+const asyncSect = defineAsyncComponent({
+  loader: () => import('')
+})
 </script>
 
 <template>
@@ -72,8 +76,8 @@ async function fetchData() {
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
-  <section ref="sect">
-    <div v-for="item in formatedList">
+  <section ref="sect" v-for="item in formatedList">
+    <div>
       <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
     </div>
   </section>
