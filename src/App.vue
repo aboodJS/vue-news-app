@@ -70,10 +70,6 @@ function fetchData() {
       articles.value = arts.articles
     })
 }
-
-const asyncSect = defineAsyncComponent({
-  loader: () => import('')
-})
 </script>
 
 <template>
