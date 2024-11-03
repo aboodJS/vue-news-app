@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <span></span>
 </template>
 
 <style scoped>
@@ -13,11 +13,13 @@
   }
 }
 
-div {
-  height: 120px;
-  width: 120px;
-  border: 5px solid var(--line-color);
-  border-right: 5px solid transparent;
+span {
+  position: absolute;
+  justify-self: center;
+  height: 160px;
+  width: 160px;
+  border: 7px solid var(--line-color);
+  border-right: 7px solid transparent;
   border-radius: 50%;
   animation: spin 700ms ease-in-out 0ms infinite forwards;
 }

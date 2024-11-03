@@ -5,8 +5,8 @@ api url: https://newsapi.org/v2/everything?
 
 -->
 <script setup>
-import { computed, ref, defineAsyncComponent } from 'vue'
-import LoadingScreen from './components/LoadingScreen.vue'
+import { computed, ref, defineAsyncComponent, useTemplateRef } from 'vue'
+import LoadingScreen from './components/LoadingComp.vue'
 import ArticleBox from './components/ArticleBox.vue'
 import { errorMessages } from 'vue/compiler-sfc'
 
@@ -17,7 +17,8 @@ const current = new Date()
 const api = ref('https://newsapi.org/v2/everything?')
 const key = ref('')
 const articles = ref([])
-const sect = ref()
+const showLoading = ref(false)
+const sect = useTemplateRef('sect')
 
 const formatedQuery = computed(() => {
   return query.value.split(' ').join('+')
@@ -26,26 +27,6 @@ const formatedQuery = computed(() => {
 const formatedList = computed(() => {
   return articles.value.filter((x) => x.title !== '[Removed]')
 })
-
-// async function fetchData() {
-//   try {
-//     const rq = await fetch(
-//       `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
-//     )
-
-//     const data = await rq.json()
-
-//     if (data.articles[0] === undefined) {
-//       articles.value = 'no articles found'
-//     } else {
-//       data.articles.length = 10
-
-//       articles.value = data.articles
-//     }
-//   } catch (error) {
-//     articles.value = `Error: ${error}`
-//   }
-// }
 
 function fetchData() {
   const promise = new Promise((resolve, reject) => {
@@ -62,10 +43,13 @@ function fetchData() {
         reject(`error: ${rq.response}`)
       }
     }
+
     rq.send()
   })
     .then((data) => JSON.parse(data))
     .then((arts) => {
+      showLoading.value = false
+
       arts.articles.length = 10
       articles.value = arts.articles
     })
@@ -90,15 +74,30 @@ function fetchData() {
       <label for="to">to</label>
       <input type="date" name="to" id="" v-model="date2" @change="console.log(date2)" />
     </span>
-    <button @click="fetchData">search</button>
+    <button
+      @click="
+        () => {
+          showLoading = true
+          fetchData()
+        }
+      "
+    >
+      search
+    </button>
   </main>
   <h1>
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
-  <section ref="sect" v-for="item in formatedList">
-    <div>
-      <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
+  <section ref="sect">
+    <LoadingScreen v-show="showLoading"></LoadingScreen>
+    <div v-for="item in formatedList">
+      <ArticleBox
+        v-if="showLoading === false"
+        :title="item.title"
+        :desc="item.description"
+        :link="item.url"
+      />
     </div>
   </section>
 </template>
@@ -128,6 +127,7 @@ span {
 }
 
 section {
+  position: relative;
   justify-self: center;
   align-self: center;
   justify-content: center;
