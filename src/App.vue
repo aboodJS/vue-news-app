@@ -89,7 +89,7 @@ function fetchData() {
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
-  <section ref="sect">
+  <section id="sect">
     <LoadingScreen v-show="showLoading"></LoadingScreen>
     <div v-for="item in formatedList">
       <ArticleBox
@@ -159,5 +159,20 @@ a:hover {
 h1 {
   text-align: center;
   border-bottom: 3px dotted var(--line-color);
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 100%;
+  }
+
+  #sect div {
+    height: 200px;
+    overflow: hidden;
+  }
+
+  #sect div p {
+    display: none;
+  }
 }
 </style>
