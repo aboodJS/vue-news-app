@@ -162,13 +162,19 @@ h1 {
 }
 
 @media (max-width: 600px) {
+  div {
+    display: grid;
+    align-content: space-between;
+    justify-content: center;
+  }
+
   h1 {
     font-size: 100%;
   }
 
   #sect div {
     height: 200px;
-    overflow: hidden;
+    overflow: scroll;
   }
 
   #sect div p {
