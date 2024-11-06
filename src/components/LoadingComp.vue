@@ -14,7 +14,7 @@
 }
 
 span {
-  position: absolute;
+  align-self: center;
   justify-self: center;
   height: 160px;
   width: 160px;

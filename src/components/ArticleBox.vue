@@ -23,7 +23,7 @@ button {
   background-color: var(--line-color);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   p {
     display: none;
   }

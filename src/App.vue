@@ -89,15 +89,10 @@ function fetchData() {
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
-  <section id="sect">
-    <LoadingScreen v-show="showLoading"></LoadingScreen>
+  <LoadingScreen v-show="showLoading"></LoadingScreen>
+  <section id="sect" v-if="showLoading === false">
     <div v-for="item in formatedList">
-      <ArticleBox
-        v-if="showLoading === false"
-        :title="item.title"
-        :desc="item.description"
-        :link="item.url"
-      />
+      <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
     </div>
   </section>
 </template>
@@ -161,24 +156,42 @@ h1 {
   border-bottom: 3px dotted var(--line-color);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   div {
-    display: grid;
-    align-content: space-between;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
   }
 
   h1 {
+    text-align: center;
+    border: none;
     font-size: 100%;
   }
 
+  #sect {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: scroll;
+  }
+
   #sect div {
+    width: 320px;
     height: 200px;
     overflow: scroll;
   }
 
   #sect div p {
     display: none;
+  }
+
+  main {
+    z-index: 3;
+    width: 100%;
+    position: sticky;
+    top: 0px;
   }
 }
 </style>
