@@ -5,8 +5,8 @@ api url: https://newsapi.org/v2/everything?
 
 -->
 <script setup>
-import { computed, ref, defineAsyncComponent } from 'vue'
-import LoadingScreen from './components/LoadingScreen.vue'
+import { computed, ref, defineAsyncComponent, useTemplateRef } from 'vue'
+import LoadingScreen from './components/LoadingComp.vue'
 import ArticleBox from './components/ArticleBox.vue'
 import { errorMessages } from 'vue/compiler-sfc'
 
@@ -17,7 +17,8 @@ const current = new Date()
 const api = ref('https://newsapi.org/v2/everything?')
 const key = ref('')
 const articles = ref([])
-const sect = ref()
+const showLoading = ref(false)
+const sect = useTemplateRef('sect')
 
 const formatedQuery = computed(() => {
   return query.value.split(' ').join('+')
@@ -27,29 +28,32 @@ const formatedList = computed(() => {
   return articles.value.filter((x) => x.title !== '[Removed]')
 })
 
-async function fetchData() {
-  try {
-    const rq = await fetch(
+function fetchData() {
+  const promise = new Promise((resolve, reject) => {
+    let rq = new XMLHttpRequest()
+    rq.open(
+      'GET',
       `${api.value}q=${formatedQuery.value}&from=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&to=${date.value || `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`}&apiKey=${key.value}`
     )
 
-    const data = await rq.json()
-
-    if (data.articles[0] === undefined) {
-      articles.value = 'no articles found'
-    } else {
-      data.articles.length = 10
-
-      articles.value = data.articles
+    rq.onload = () => {
+      if (rq.status === 200) {
+        resolve(rq.response)
+      } else {
+        reject(`error: ${rq.response}`)
+      }
     }
-  } catch (error) {
-    articles.value = `Error: ${error}`
-  }
-}
 
-const asyncSect = defineAsyncComponent({
-  loader: () => import('')
-})
+    rq.send()
+  })
+    .then((data) => JSON.parse(data))
+    .then((arts) => {
+      showLoading.value = false
+
+      arts.articles.length = 10
+      articles.value = arts.articles
+    })
+}
 </script>
 
 <template>
@@ -70,14 +74,24 @@ const asyncSect = defineAsyncComponent({
       <label for="to">to</label>
       <input type="date" name="to" id="" v-model="date2" @change="console.log(date2)" />
     </span>
-    <button @click="fetchData">search</button>
+    <button
+      @click="
+        () => {
+          showLoading = true
+          fetchData()
+        }
+      "
+    >
+      search
+    </button>
   </main>
   <h1>
     Note: due to the app using the free version of the API you are only limited to look up articles
     that are at most a month old
   </h1>
-  <section ref="sect" v-for="item in formatedList">
-    <div>
+  <LoadingScreen v-show="showLoading"></LoadingScreen>
+  <section id="sect" v-if="showLoading === false">
+    <div v-for="item in formatedList">
       <ArticleBox :title="item.title" :desc="item.description" :link="item.url" />
     </div>
   </section>
@@ -108,6 +122,7 @@ span {
 }
 
 section {
+  position: relative;
   justify-self: center;
   align-self: center;
   justify-content: center;
@@ -139,5 +154,44 @@ a:hover {
 h1 {
   text-align: center;
   border-bottom: 3px dotted var(--line-color);
+}
+
+@media (max-width: 700px) {
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1 {
+    text-align: center;
+    border: none;
+    font-size: 100%;
+  }
+
+  #sect {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: scroll;
+  }
+
+  #sect div {
+    width: 320px;
+    height: 200px;
+    overflow: scroll;
+  }
+
+  #sect div p {
+    display: none;
+  }
+
+  main {
+    z-index: 3;
+    width: 100%;
+    position: sticky;
+    top: 0px;
+  }
 }
 </style>

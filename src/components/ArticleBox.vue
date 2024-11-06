@@ -22,4 +22,19 @@ button {
   border: none;
   background-color: var(--line-color);
 }
+
+@media (max-width: 700px) {
+  p {
+    display: none;
+  }
+
+  h2 {
+    font-size: 125%;
+  }
+
+  button {
+    border-radius: 4px;
+    height: 40px;
+  }
+}
 </style>
